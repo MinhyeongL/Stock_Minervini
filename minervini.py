@@ -16,7 +16,7 @@ class Minervini:
     
     def filter_price(self):
         for col in tqdm(self.company_df.columns):
-            tmp = self.company_df.loc[:, [com]]
+            tmp = self.company_df.loc[:, [col]]
             tmp['TimeStamp'] = pd.Series(tmp.index).apply(lambda x : x.timestamp()).values
             tmp['MA50'] = tmp[col].rolling(50).mean()
             tmp['MA150'] = tmp[col].rolling(150).mean()
