@@ -9,6 +9,9 @@ import OpenDartReader
 import yfinance as yf
 from dateutil.relativedelta import relativedelta
 
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+
 
 class Company:
     def __init__(self, api_key):
@@ -16,18 +19,37 @@ class Company:
         self.now = datetime.now().date()
         
     
-    def get_company_list(self):
+    def get_company_list(self, magic=False):
         stock_list = fdr.StockListing('KRX').dropna().reset_index(drop=True)
         stock_list = stock_list[(stock_list.Market == 'KOSPI') | (stock_list.Market == 'KOSDAQ')].reset_index(drop = True)
-
+        
+        if magic:
+            self.get_magic_stock_company_list()
+            stock_list = stock_list[stock_list.Name.isin(self.magic_list)]
+        
         self.stock_list = stock_list
         self.stock_code = self.stock_list.Code.tolist()
         
         
-    def get_company_info(self):
+    def get_magic_stock_company_list(self):
+        # 불러오려는 url 입력하기
+        url = 'http://m.o.woobi.co.kr/stock/magicNewList.php'
+        
+        # urlopen 함수를 통해 web 변수를 생성
+        web = urlopen(url)
+        
+        # BeautifulSoup으로 web 페이지상의 HTML 구조를 파싱
+        source = BeautifulSoup(web, 'html.parser')
+        
+        self.magic_list = []
+        for x in source.find_all('td', {'width' : '40%'})[1:]:
+            self.magic_list.append(x.get_text().strip())
+            
+        
+    def get_company_info(self, magic=False):
         dart = OpenDartReader(self.api_key)
 
-        self.get_company_list()
+        self.get_company_list(magic)
 
         company_list = deque()
         fail_list = deque(self.stock_code)
