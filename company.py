@@ -68,41 +68,41 @@ class Company:
             self.magic_list.append(x.get_text().strip())
             
             
-    def get_company_list(self, magic=False):
-        stock_list = fdr.StockListing('KRX').dropna().reset_index(drop=True)
-        stock_list = stock_list[(stock_list.Market == 'KOSPI') | (stock_list.Market == 'KOSDAQ')].reset_index(drop = True)
+    # def get_company_list(self, magic=False):
+    #     stock_list = fdr.StockListing('KRX').dropna().reset_index(drop=True)
+    #     stock_list = stock_list[(stock_list.Market == 'KOSPI') | (stock_list.Market == 'KOSDAQ')].reset_index(drop = True)
         
-        if magic:
-            self.get_magic_stock_company_list()
-            stock_list = stock_list[stock_list.Name.isin(self.magic_list)]
+    #     if magic:
+    #         self.get_magic_stock_company_list()
+    #         stock_list = stock_list[stock_list.Name.isin(self.magic_list)]
         
-        self.stock_list = stock_list
-        self.stock_code = self.stock_list.Code.tolist()
+    #     self.stock_list = stock_list
+    #     self.stock_code = self.stock_list.Code.tolist()
         
         
-    def get_company_info(self, magic=False):
-        dart = OpenDartReader(self.api_key)
+    # def get_company_info(self, magic=False):
+    #     dart = OpenDartReader(self.api_key)
 
-        self.get_company_list(magic)
+    #     self.get_company_list(magic)
 
-        company_list = deque()
-        fail_list = deque(self.stock_code)
+    #     company_list = deque()
+    #     fail_list = deque(self.stock_code)
 
-        pbar = tqdm(total=len(fail_list), desc='Processing', unit='iteration')
+    #     pbar = tqdm(total=len(fail_list), desc='Processing', unit='iteration')
 
-        while fail_list:
-            code = fail_list.popleft()
-            try:
-                company_list.append(dart.company(code))
-            except:
-                fail_list.append(code)
+    #     while fail_list:
+    #         code = fail_list.popleft()
+    #         try:
+    #             company_list.append(dart.company(code))
+    #         except:
+    #             fail_list.append(code)
 
-            pbar.update(1)   
+    #         pbar.update(1)   
 
-        company_dict = {}
-        for x in tqdm(company_list):
-            # 우선주 제외
-            if x['status'] == '000':
-                company_dict[x['stock_code']] = (x['stock_name'], x['corp_cls'])
+    #     company_dict = {}
+    #     for x in tqdm(company_list):
+    #         # 우선주 제외
+    #         if x['status'] == '000':
+    #             company_dict[x['stock_code']] = (x['stock_name'], x['corp_cls'])
 
-        self.company_dict = company_dict
+    #     self.company_dict = company_dict
